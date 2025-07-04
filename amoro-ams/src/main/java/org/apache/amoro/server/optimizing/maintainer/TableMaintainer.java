@@ -68,4 +68,7 @@ public interface TableMaintainer {
       throw new RuntimeException("Unsupported table type" + amoroTable.originalTable().getClass());
     }
   }
+
+  /** Refresh the table metadata, such as the latest snapshot, partition spec, etc. */
+  void refreshTable();
 }

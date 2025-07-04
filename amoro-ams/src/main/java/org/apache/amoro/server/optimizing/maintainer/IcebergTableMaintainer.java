@@ -119,6 +119,7 @@ public class IcebergTableMaintainer implements TableMaintainer {
           CommitMetaProducer.CLEAN_DANGLING_DELETE.name());
 
   protected Table table;
+  private boolean refreshTable = false;
 
   public IcebergTableMaintainer(Table table) {
     this.table = table;
@@ -131,6 +132,9 @@ public class IcebergTableMaintainer implements TableMaintainer {
         tableRuntime.getOptimizingState().getOrphanFilesCleaningMetrics();
 
     if (!tableConfiguration.isCleanOrphanEnabled()) {
+      LOG.debug(
+          "Table {} does not enable orphan files clean, so skip cleaning orphan files",
+          table.name());
       return;
     }
 
@@ -139,7 +143,7 @@ public class IcebergTableMaintainer implements TableMaintainer {
     cleanContentFiles(System.currentTimeMillis() - keepTime, orphanFilesCleaningMetrics);
 
     // refresh
-    table.refresh();
+    refreshTable();
 
     // clear metadata files
     cleanMetadata(System.currentTimeMillis() - keepTime, orphanFilesCleaningMetrics);
@@ -315,6 +319,11 @@ public class IcebergTableMaintainer implements TableMaintainer {
     new AutoCreateIcebergTagAction(
             table, tableRuntime.getTableConfiguration().getTagConfiguration(), LocalDateTime.now())
         .execute();
+  }
+
+  @Override
+  public void refreshTable() {
+    table.refresh();
   }
 
   protected void cleanContentFiles(

@@ -247,6 +247,14 @@ public class MixedTableMaintainer implements TableMaintainer {
     throw new UnsupportedOperationException("Mixed table doesn't support auto create tags");
   }
 
+  @Override
+  public void refreshTable() {
+    if (changeMaintainer != null) {
+      changeMaintainer.refreshTable();
+    }
+    baseMaintainer.refreshTable();
+  }
+
   protected void cleanContentFiles(
       long lastTime, TableOrphanFilesCleaningMetrics orphanFilesCleaningMetrics) {
     if (changeMaintainer != null) {
@@ -299,6 +307,9 @@ public class MixedTableMaintainer implements TableMaintainer {
     @Override
     public void expireSnapshots(DefaultTableRuntime tableRuntime) {
       if (!expireSnapshotEnabled(tableRuntime)) {
+        LOG.debug(
+            "Table {} does not enable expire snapshots clean, so skip cleaning expire snapshots",
+            table.name());
         return;
       }
       long now = System.currentTimeMillis();
