@@ -27,16 +27,23 @@ public class TableSummary {
   private long records;
   private String optimizingStatus;
   private int healthScore = -1; // -1 means not calculated
+  private String comment;
 
   public TableSummary() {}
 
   public TableSummary(
-      long file, String size, String averageFile, long records, String tableFormat) {
+      long file,
+      String size,
+      String averageFile,
+      long records,
+      String tableFormat,
+      String comment) {
     this.file = file;
     this.size = size;
     this.averageFile = averageFile;
     this.records = records;
     this.tableFormat = tableFormat;
+    this.comment = comment;
   }
 
   /** Total size of table in human readable. */
@@ -80,5 +87,10 @@ public class TableSummary {
 
   public void setHealthScore(int healthScore) {
     this.healthScore = healthScore;
+  }
+
+  /** Table comment of specified table. */
+  public String getComment() {
+    return comment;
   }
 }

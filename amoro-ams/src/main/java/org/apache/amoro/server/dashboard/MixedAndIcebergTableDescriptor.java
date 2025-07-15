@@ -171,9 +171,16 @@ public class MixedAndIcebergTableDescriptor extends PersistentBase
     }
     String averageFileSize = AmsUtil.byteToXB(tableFileCnt == 0 ? 0 : tableSize / tableFileCnt);
     long records = getRecordsOfTable(table);
+    String comment =
+        table.properties().getOrDefault(TableProperties.COMMENT, TableProperties.COMMENT_DEFAULT);
     TableSummary tableSummary =
         new TableSummary(
-            tableFileCnt, AmsUtil.byteToXB(tableSize), averageFileSize, records, tableFormat);
+            tableFileCnt,
+            AmsUtil.byteToXB(tableSize),
+            averageFileSize,
+            records,
+            tableFormat,
+            comment);
     serverTableMeta.setTableSummary(tableSummary);
     return serverTableMeta;
   }

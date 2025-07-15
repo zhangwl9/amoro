@@ -67,6 +67,7 @@ const state = reactive({
     tableName: '',
     createTime: '',
     tableFormat: '',
+    comment: '',
     hasPartition: false, // Whether there is a partition, if there is no partition, the file list will be displayed
   } as IBaseDetailInfo,
   pkList: [] as DetailColumnItem[],

@@ -141,6 +141,7 @@ public class PaimonTableDescriptor implements FormatTableDescriptor {
     Map<String, Object> baseMetric = new HashMap<>();
     // table summary
     TableSummary tableSummary;
+    String comment = table.comment().orElse("");
     Snapshot snapshot = store.snapshotManager().latestSnapshot();
     if (snapshot != null) {
       AmoroSnapshotsOfTable snapshotsOfTable =
@@ -153,7 +154,12 @@ public class PaimonTableDescriptor implements FormatTableDescriptor {
 
       tableSummary =
           new TableSummary(
-              fileCount, totalSize, averageFileSize, snapshotsOfTable.getRecords(), "paimon");
+              fileCount,
+              totalSize,
+              averageFileSize,
+              snapshotsOfTable.getRecords(),
+              "paimon",
+              comment);
 
       baseMetric.put("totalSize", totalSize);
       baseMetric.put("fileCount", fileCount);
@@ -164,7 +170,7 @@ public class PaimonTableDescriptor implements FormatTableDescriptor {
         baseMetric.put("baseWatermark", watermark);
       }
     } else {
-      tableSummary = new TableSummary(0, "0", "0", 0, "paimon");
+      tableSummary = new TableSummary(0, "0", "0", 0, "paimon", comment);
 
       baseMetric.put("totalSize", 0);
       baseMetric.put("fileCount", 0);

@@ -195,7 +195,12 @@ public class HudiTableDescriptor implements FormatTableDescriptor {
     String tableFormat = "Hudi(" + tableType + ")";
     TableSummary tableSummary =
         new TableSummary(
-            totalFileCount, CommonUtil.byteToXB(totalFileSize), averageFileSize, 0, tableFormat);
+            totalFileCount,
+            CommonUtil.byteToXB(totalFileSize),
+            averageFileSize,
+            0,
+            tableFormat,
+            "");
     meta.setTableSummary(tableSummary);
 
     Map<String, Object> baseSummary = new HashMap<>();
