@@ -197,8 +197,11 @@ public class IcebergRewriteExecutor extends AbstractRewriteFilesExecutor {
   }
 
   /**
-   * Check whether all input Parquet file schemas are consistent; if so, build and return
-   * FileSchemaContext, otherwise return null.
+   * Check whether all input Parquet file schemas are consistent and build {@link FileSchemaContext}
+   * for row-group merge.
+   *
+   * @throws IllegalStateException when schemas are inconsistent, no valid input schema exists, or
+   *     parquet metadata cannot be read
    */
   private FileSchemaContext checkSchemaAndBuildContext() {
     MessageType firstSchema = null;
@@ -226,20 +229,25 @@ public class IcebergRewriteExecutor extends AbstractRewriteFilesExecutor {
                 "Skip parquet row-group merge due to schema mismatch between {} and {}",
                 input.rewrittenDataFiles()[0].location(),
                 file.location());
-            return null;
+            throw new IllegalStateException(
+                "The input parquet files have inconsistent schemas and cannot be merged.");
           }
         }
       }
 
       if (firstSchema == null) {
         LOG.warn("Skip parquet row-group merge due to empty input schema");
-        return null;
+        throw new IllegalStateException(
+            "No valid input parquet files are available for parquet row-group merge.");
       }
 
       return new FileSchemaContext(firstSchema, firstMetadata, inputFiles, fileSizes);
+    } catch (IllegalStateException e) {
+      throw e;
     } catch (RuntimeException | IOException e) {
       LOG.warn("Skip parquet row-group merge due to parquet metadata read failure", e);
-      return null;
+      throw new IllegalStateException(
+          "Failed to read parquet metadata from input files for parquet row-group merge.", e);
     }
   }
 
@@ -247,10 +255,6 @@ public class IcebergRewriteExecutor extends AbstractRewriteFilesExecutor {
     List<DataFile> outputFiles = new ArrayList<>();
     OutputFileFactory outputFileFactory = newRowGroupMergeOutputFileFactory();
     FileSchemaContext fileSchemaContext = checkSchemaAndBuildContext();
-    if (fileSchemaContext == null) {
-      throw new IllegalStateException(
-          "The input parquet files have inconsistent schemas and cannot be merged.");
-    }
     long maxOutputSize = super.targetSize();
     long currentOutputSize = 0L;
     ParquetFileMergeRunner parquetFileMergeRunner = null;

@@ -443,6 +443,23 @@ public class IcebergRewriteExecutorTest extends TableTestBase {
     Assert.assertEquals(expectedErrorMessage, errorMessage);
   }
 
+  @Test
+  public void testParquetRowGroupMergeWithEmptyInput() throws IOException {
+    Assume.assumeTrue(fileFormat == FileFormat.PARQUET);
+    prepareParquetRowGroupMergeTableConditions(true);
+
+    RewriteFilesInput rewriteInput = newDataOnlyInput(Collections.emptyList());
+    IcebergRewriteExecutor executor = newExecutor(rewriteInput);
+
+    Assert.assertTrue(executor.canParquetRowGroupMerge());
+    String expectedErrorMessage =
+        "No valid input parquet files are available for parquet row-group merge.";
+    String errorMessage =
+        Assert.assertThrows(IllegalStateException.class, executor::parquetRowGroupMergeFiles)
+            .getMessage();
+    Assert.assertEquals(expectedErrorMessage, errorMessage);
+  }
+
   private RewriteFilesInput newDataOnlyInput(List<DataFile> dataFiles) {
     DataFile[] wrappedDataFiles = new DataFile[dataFiles.size()];
     for (int i = 0; i < dataFiles.size(); i++) {
